@@ -140,6 +140,7 @@ pub enum RunType {
     CfgRoundTrip,
     RvsdgToCfg,
     RvsdgOptimize,
+    RvsdgEgglogEncoding,
 }
 
 impl Debug for RunType {
@@ -163,6 +164,7 @@ impl FromStr for RunType {
             "cfg-roundtrip" => Ok(RunType::CfgRoundTrip),
             "rvsdg-to-cfg" => Ok(RunType::RvsdgToCfg),
             "rvsdg-optimize" => Ok(RunType::RvsdgOptimize),
+            "rvsdg-egglog-encoding" => Ok(RunType::RvsdgEgglogEncoding),
             _ => Err(format!("Unknown run type: {}", s)),
         }
     }
@@ -181,6 +183,7 @@ impl Display for RunType {
             RunType::CfgRoundTrip => write!(f, "cfg-roundtrip"),
             RunType::RvsdgToCfg => write!(f, "rvsdg-to-cfg"),
             RunType::RvsdgOptimize => write!(f, "rvsdg-optimize"),
+            RunType::RvsdgEgglogEncoding => write!(f, "rvsdg-egglog-encoding"),
         }
     }
 }
@@ -198,6 +201,7 @@ impl RunType {
             RunType::CfgRoundTrip => true,
             RunType::RvsdgToCfg => true,
             RunType::RvsdgOptimize => true,
+            RunType::RvsdgEgglogEncoding => true,
         }
     }
 }
@@ -402,6 +406,18 @@ impl Run {
                         name: "".to_string(),
                     }],
                     Some(optimized),
+                )
+            }
+            RunType::RvsdgEgglogEncoding => {
+                let rvsdg = Optimizer::program_to_rvsdg(&self.prog_with_args.program).unwrap();
+                let (egglog_code, _) = rvsdg.build_egglog_code();
+                (
+                    vec![Visualization {
+                        result: egglog_code,
+                        file_extension: ".egglog".to_string(),
+                        name: "".to_string(),
+                    }],
+                    None,
                 )
             }
         };
