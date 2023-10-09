@@ -140,6 +140,7 @@ pub enum RunType {
     CfgRoundTrip,
     RvsdgToCfg,
     RvsdgOptimize,
+    OptimizedRvsdg,
     RvsdgEgglogEncoding,
 }
 
@@ -165,6 +166,7 @@ impl FromStr for RunType {
             "rvsdg-to-cfg" => Ok(RunType::RvsdgToCfg),
             "rvsdg-optimize" => Ok(RunType::RvsdgOptimize),
             "rvsdg-egglog-encoding" => Ok(RunType::RvsdgEgglogEncoding),
+            "optimized-rvsdg" => Ok(RunType::OptimizedRvsdg),
             _ => Err(format!("Unknown run type: {}", s)),
         }
     }
@@ -183,6 +185,7 @@ impl Display for RunType {
             RunType::CfgRoundTrip => write!(f, "cfg-roundtrip"),
             RunType::RvsdgToCfg => write!(f, "rvsdg-to-cfg"),
             RunType::RvsdgOptimize => write!(f, "rvsdg-optimize"),
+            RunType::OptimizedRvsdg => write!(f, "optimized-rvsdg"),
             RunType::RvsdgEgglogEncoding => write!(f, "rvsdg-egglog-encoding"),
         }
     }
@@ -202,6 +205,7 @@ impl RunType {
             RunType::RvsdgToCfg => true,
             RunType::RvsdgOptimize => true,
             RunType::RvsdgEgglogEncoding => true,
+            RunType::OptimizedRvsdg => false,
         }
     }
 }
@@ -277,6 +281,7 @@ impl Run {
             RunType::PegConversion,
             RunType::CfgRoundTrip,
             RunType::RvsdgOptimize,
+            RunType::RvsdgToCfg,
         ] {
             let default = Run {
                 test_type,
@@ -415,6 +420,19 @@ impl Run {
                     vec![Visualization {
                         result: egglog_code,
                         file_extension: ".egglog".to_string(),
+                        name: "".to_string(),
+                    }],
+                    None,
+                )
+            }
+            RunType::OptimizedRvsdg => {
+                let rvsdg = Optimizer::program_to_rvsdg(&self.prog_with_args.program).unwrap();
+                let optimized = rvsdg.optimize().unwrap();
+                let svg = optimized.to_svg();
+                (
+                    vec![Visualization {
+                        result: svg,
+                        file_extension: ".svg".to_string(),
                         name: "".to_string(),
                     }],
                     None,
