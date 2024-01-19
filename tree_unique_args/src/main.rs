@@ -13,6 +13,7 @@ pub(crate) mod purity_analysis;
 pub(crate) mod subst;
 pub(crate) mod switch_rewrites;
 pub(crate) mod util;
+pub(crate) mod id_analysis;
 
 pub type Result = std::result::Result<(), egglog::Error>;
 
@@ -33,6 +34,7 @@ pub fn run_test(build: &str, check: &str) -> Result {
             &deep_copy::deep_copy_rules().join("\n"),
             include_str!("sugar.egg"),
             include_str!("util.egg"),
+            &id_analysis::id_analysis_rules().join("\n"),
             // optimizations
             &switch_rewrites::egglog(),
             include_str!("function_inlining.egg"),
